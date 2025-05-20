@@ -48,16 +48,27 @@
   </table>
 </div>
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack  
+**Backend:**  
+- ASP.NET Core Web API  
+- Entity Framework Core  
+- SQL Server  
+- JWT Authentication  
 
-- **Backend:** .NET Core, C#, ASP.NET Core Web API
-- **Frontend:** HTML, CSS, JavaScript
-- **Database:** SQL Server (or Entity Framework Core)
-- **Authentication:** JWT (JSON Web Tokens)
+**Frontend:**  
+- HTML5/CSS3  
+- JavaScript  
+- Responsive Design  
+## ⚙️ Setup
 
-## ⚙️ Setup & Installation
+### Prerequisites
+- [.NET 6.0 SDK](https://dotnet.microsoft.com/download)
+- [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
+- [Git](https://git-scm.com/downloads)
 
-1. **Clone the repository:**
-   ```sh
+
+1. **Clone the repository**
+   ```bash
    git clone https://github.com/your-username/EDU-HUB.git
    cd EDU-HUB
+
