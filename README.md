@@ -33,14 +33,14 @@
     </tr>
     <tr>
       <td><img src="WhatsApp Image 2025-05-20 at 18.35.44_781c9e54.jpgg" width="100%" alt="Courses"></td>
-      <td><img src="WhatsApp%20Image%202025-05-20%20at%2018.36.04_13fb99d8.jpg" width="100%" alt="Signup"></td>
+      <td><img src="WhatsApp Image 2025-05-20 at 18.36.04_f71471f8.jpg" width="100%" alt="Signup"></td>
     </tr>
     <tr>
       <td><em>All Courses</em></td>
       <td><em>Signup Page</em></td>
     </tr>
     <tr>
-      <td colspan="2"><img src="WhatsApp%20Image%202025-05-20%20at%2018.36.36_78eab420.jpg" width="100%" alt="Professor Dashboard"></td>
+      <td colspan="2"><img src="WhatsApp Image 2025-05-20 at 18.36.36_adf8e4c9.jpg" width="100%" alt="Professor Dashboard"></td>
     </tr>
     <tr>
       <td colspan="2"><em>Professor Dashboard</em></td>
