@@ -25,7 +25,7 @@
 <div align="center">
   <table>
     <tr>
-      <td><img src="WhatsApp%20Image%202025-05-20%20at%2018.34.34_fcfacfd7.jpg" width="100%" alt="API Docs"></td>
+      <td><img src="WhatsApp Image 2025-05-20 at 18.34.34_5b09fb74.jpg" width="100%" alt="API Docs"></td>
       <td><img src="WhatsApp%20Image%202025-05-20%20at%2018.35.18_cfc42166.jpg" width="100%" alt="Home Page"></td>
     </tr>
     <tr>
