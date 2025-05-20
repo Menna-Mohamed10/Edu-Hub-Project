@@ -24,10 +24,8 @@
 <div align="center">
   <table>
     <tr>
-      <td><img src="WhatsApp Image 2025-05-20 at 18.34.34_5b09fb74.jpg
-/Img/WhatsApp Image 2025-05-20 at 18.34.34_5b09fb74.jpg" width="100%" alt="API Docs"></td>
-      <td><img src="WhatsApp Image 2025-05-20 at 18.34.34_5b09fb74.jpg
-/Img/WhatsApp Image 2025-05-20 at 18.35.18_253ca619.jpg" width="100%" alt="Home Page"></td>
+      <td><img src="/Img/WhatsApp Image 2025-05-20 at 18.34.34_5b09fb74.jpg" width="100%" alt="API Docs"></td>
+      <td><img src="/Img/WhatsApp Image 2025-05-20 at 18.34.34_5b09fb74.jpg" width="100%" alt="Home Page"></td>
     </tr>
     <tr>
       <td><em>API Endpoints</em></td>
