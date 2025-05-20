@@ -1,125 +1,127 @@
-﻿using LMS.BLL.Dtos.QuizDtos;
-using LMS.BLL.Dtos.QuizResultDtos;
-using LMS.BLL.Manager;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
+using System.Threading.Tasks;
+using LMS_MVC_.ViewModels.Quiz;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace LMS.API.Controllers
+namespace LMS_MVC_.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class QuizController : ControllerBase
+    public class QuizController : Controller
     {
-        private readonly IQuizManager _quizManager;
-        private readonly IQuizResultManager _quizResultManager;
+        private readonly HttpClient _httpClient;
 
-        public QuizController(IQuizManager quizManager, IQuizResultManager quizResultManager)
+        public QuizController(IHttpClientFactory httpClientFactory)
         {
-            _quizManager = quizManager;
-            _quizResultManager = quizResultManager;
+            _httpClient = httpClientFactory.CreateClient();
+            _httpClient.BaseAddress = new Uri("http://localhost:5179/");
         }
 
-        
-
-        [HttpGet("{id}")]
-        //[Authorize]
-        public async Task<ActionResult<QuizReadDto>> GetQuiz(int id)
+        public async Task<IActionResult> TakeQuiz(int id)
         {
-            var quiz = await _quizManager.GetQuizByIdAsync(id);
-
-            if (quiz == null)
+            var token = HttpContext.Session.GetString("JwtToken");
+            if (string.IsNullOrEmpty(token))
             {
-                return NotFound();
+                TempData["Error"] = "Please log in to take the quiz.";
+                return RedirectToAction("Login", "Account");
             }
 
-            return Ok(quiz);
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var response = await _httpClient.GetAsync($"api/Quiz/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var quizData = JsonSerializer.Deserialize<QuizVM>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                // Map answers to options and set correct answer index
+                foreach (var question in quizData.Questions)
+                {
+                    // Map Answers to Options
+                    if (question.Answers != null && question.Answers.Any())
+                    {
+                        question.Options = question.Answers.Select(a => a.AnswerText).ToList();
+                    }
+                    else
+                    {
+                        question.Options = new List<string> { "No options available" };
+                        question.CorrectAnswerIndex = 0;
+                        continue;
+                    }
+
+                    // Validate CorrectAnswerIndex
+                    if (question.CorrectAnswerIndex < 0 || question.CorrectAnswerIndex >= question.Options.Count)
+                    {
+                        question.CorrectAnswerIndex = 0; // Default to first option if invalid
+                    }
+                }
+
+                return View(quizData);
+            }
+
+            TempData["Error"] = "Failed to load quiz. Please try again.";
+            return RedirectToAction("Index", "Course");
         }
 
-        [HttpGet("course/{courseId}")]
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<QuizReadDto>>> GetQuizzesByCourse(int courseId)
+        [HttpGet]
+        public async Task<IActionResult> GetQuizzesByCourseId( int courseId)
         {
-            var quizzes = await _quizManager.GetQuizzesByCourseIdAsync(courseId);
-            return Ok(quizzes);
+            var token = HttpContext.Session.GetString("JwtToken");
+            if (string.IsNullOrEmpty(token))
+            {
+                return Json(new { success = false, message = "Please log in to view quizzes." });
+            }
+
+            try
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                var response = await _httpClient.GetAsync($"api/Quiz/course/{courseId}");
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"API Response for courseId {courseId}: {content}"); // Log raw response
+                var quizzes = JsonSerializer.Deserialize<IEnumerable<QuizVM>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                return Json(quizzes);
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"HTTP Error for courseId {courseId}: {ex.Message}");
+                return Json(new { success = false, message = $"Failed to fetch quizzes: {ex.Message}" });
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"JSON Error for courseId {courseId}: {ex.Message}");
+                return Json(new { success = false, message = $"Invalid data format: {ex.Message}" });
+            }
         }
 
 
-        [HttpPost("submit")]
-        [Authorize(Roles = "Student")]
-        public async Task<ActionResult> SubmitQuiz([FromBody] QuizResultAddDto result)
-        {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            result.UserId = userId;
-            result.CompletionDate = DateTime.UtcNow;
-
-            await _quizResultManager.AddResultAsync(result);
-
-            return Ok();
-        }
-
-        [HttpGet("results/my")]
-        [Authorize(Roles = "Student")]
-        public async Task<ActionResult<IEnumerable<QuizResultReadDto>>> GetMyResults()
-        {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var results = await _quizResultManager.GetResultsByUserIdAsync(userId);
-            return Ok(results);
-        }
-
-        // Instructor and Admin endpoints
 
         [HttpPost]
-        [Authorize(Roles = "Instructor,Admin")]
-        public ActionResult CreateQuiz([FromBody] QuizAddDto quiz)
+        public async Task<IActionResult> SubmitQuiz([FromBody] QuizSubmissionVM submission)
         {
-            if (!ModelState.IsValid)
+            var token = HttpContext.Session.GetString("JwtToken");
+            if (string.IsNullOrEmpty(token))
             {
-                return BadRequest(ModelState);
+                return Json(new { success = false, message = "Please log in to submit the quiz." });
             }
 
-            _quizManager.AddQuizAsync(quiz);
-            return CreatedAtAction(nameof(GetQuiz), new { id = quiz.CourseId }, quiz);
-        }
+            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var content = new StringContent(JsonSerializer.Serialize(submission), System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("api/QuizSubmission/SubmitQuiz", content);
 
-        [HttpPut("{id}")]
-        [Authorize(Roles = "Instructor,Admin")]
-        public ActionResult UpdateQuiz(int id, [FromBody] QuizUpdateDto quiz)
-        {
-            if (id != quiz.Id)
+            if (response.IsSuccessStatusCode)
             {
-                return BadRequest();
+                var result = await response.Content.ReadFromJsonAsync<QuizResult>();
+                return Json(new { success = true, score = result?.Score });
             }
 
-            _quizManager.UpdateQuiz(quiz);
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
-        public ActionResult DeleteQuiz(int id)
-        {
-            _quizManager.DeleteQuiz(id);
-            return NoContent();
-        }
-
-        
-
-        [HttpGet("results/quiz/{quizId}")]
-        [Authorize(Roles = "Instructor,Admin")]
-        public async Task<ActionResult<IEnumerable<QuizResultReadDto>>> GetQuizResults(int quizId)
-        {
-            var results = await _quizResultManager.GetResultsByQuizIdAsync(quizId);
-            return Ok(results);
-        }
-
-        [HttpGet("results/all")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<QuizResultReadDto>>> GetAllResults()
-        {
-            var results = await _quizResultManager.GetAllResultsAsync();
-            return Ok(results);
+            // Capture the detailed error message from the API
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            return Json(new { success = false, message = $"Failed to submit quiz. API error: {errorMessage}" });
         }
     }
 }
