@@ -32,7 +32,7 @@
       <td><em>Home Page</em></td>
     </tr>
     <tr>
-      <td><img src="WhatsApp%20Image%202025-05-20%20at%2018.35.44_48b3fa06.jpg" width="100%" alt="Courses"></td>
+      <td><img src="WhatsApp Image 2025-05-20 at 18.35.44_781c9e54.jpgg" width="100%" alt="Courses"></td>
       <td><img src="WhatsApp%20Image%202025-05-20%20at%2018.36.04_13fb99d8.jpg" width="100%" alt="Signup"></td>
     </tr>
     <tr>
