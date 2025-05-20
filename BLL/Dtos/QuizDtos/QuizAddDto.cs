@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using LMS.BLL.Dtos.QuestionDtos;
+
+namespace LMS.BLL.Dtos.QuizDtos
+{
+    public class QuizAddDto
+    {
+        public int CourseId { get; set; }
+        public string Title { get; set; }
+        public List<QuizQuestionAddDto> Questions { get; set; }
+    }
+}
