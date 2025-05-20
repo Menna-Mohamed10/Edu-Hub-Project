@@ -25,7 +25,7 @@
   <table>
     <tr>
       <td><img src="/Img/WhatsApp Image 2025-05-20 at 18.34.34_5b09fb74.jpg" width="100%" alt="API Docs"></td>
-      <td><img src="/Img/WhatsApp Image 2025-05-20 at 18.34.34_5b09fb74.jpg" width="100%" alt="Home Page"></td>
+      <td><img src="/Img/WhatsApp Image 2025-05-20 at 18.35.18_253ca619.jpg" width="100%" alt="Home Page"></td>
     </tr>
     <tr>
       <td><em>API Endpoints</em></td>
@@ -33,7 +33,7 @@
     </tr>
     <tr>
       <td><img src="
-/Img/WhatsApp Image 2025-05-20 at 18.35.44_781c9e54.jpg" width="100%" alt="Courses"></td>
+/Img/WhatsApp Image 2025-05-20 at 18.36.36_adf8e4c9.jpg" width="100%" alt="Professor Dashboard"></td>
       <td><img src="
 /Img/WhatsApp Image 2025-05-20 at 18.36.04_f71471f8.jpg" width="100%" alt="Signup"></td>
     </tr>
@@ -43,7 +43,7 @@
     </tr>
     <tr>
       <td colspan="2"><img src="
-/Img/WhatsApp Image 2025-05-20 at 18.36.36_adf8e4c9.jpg" width="100%" alt="Professor Dashboard"></td>
+/Img/WhatsApp Image 2025-05-20 at 18.35.44_781c9e54.jpg" width="100%" alt="Courses"></td>
     </tr>
     <tr>
       <td colspan="2"><em>Professor Dashboard</em></td>
