@@ -32,9 +32,9 @@
       <td><em>Home Page</em></td>
     </tr>
     <tr>
-      <td><img src="WhatsApp Image 2025-05-20 at 18.34.34_5b09fb74.jpg
-/Img/WhatsApp Image 2025-05-20 at 18.35.44_781c9e54.jpgg" width="100%" alt="Courses"></td>
-      <td><img src="WhatsApp Image 2025-05-20 at 18.34.34_5b09fb74.jpg
+      <td><img src="
+/Img/WhatsApp Image 2025-05-20 at 18.35.44_781c9e54.jpg" width="100%" alt="Courses"></td>
+      <td><img src="
 /Img/WhatsApp Image 2025-05-20 at 18.36.04_f71471f8.jpg" width="100%" alt="Signup"></td>
     </tr>
     <tr>
@@ -42,7 +42,7 @@
       <td><em>Signup Page</em></td>
     </tr>
     <tr>
-      <td colspan="2"><img src="WhatsApp Image 2025-05-20 at 18.34.34_5b09fb74.jpg
+      <td colspan="2"><img src="
 /Img/WhatsApp Image 2025-05-20 at 18.36.36_adf8e4c9.jpg" width="100%" alt="Professor Dashboard"></td>
     </tr>
     <tr>
