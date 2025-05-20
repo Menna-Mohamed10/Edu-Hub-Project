@@ -1,0 +1,14 @@
+D:\programming\C#\LMS.API\LMS.DAL\bin\Debug\net8.0\LMS.DAL.deps.json
+D:\programming\C#\LMS.API\LMS.DAL\bin\Debug\net8.0\LMS.DAL.runtimeconfig.json
+D:\programming\C#\LMS.API\LMS.DAL\bin\Debug\net8.0\LMS.DAL.dll
+D:\programming\C#\LMS.API\LMS.DAL\bin\Debug\net8.0\LMS.DAL.pdb
+D:\programming\C#\LMS.API\LMS.DAL\obj\Debug\net8.0\LMS.DAL.csproj.AssemblyReference.cache
+D:\programming\C#\LMS.API\LMS.DAL\obj\Debug\net8.0\LMS.DAL.GeneratedMSBuildEditorConfig.editorconfig
+D:\programming\C#\LMS.API\LMS.DAL\obj\Debug\net8.0\LMS.DAL.AssemblyInfoInputs.cache
+D:\programming\C#\LMS.API\LMS.DAL\obj\Debug\net8.0\LMS.DAL.AssemblyInfo.cs
+D:\programming\C#\LMS.API\LMS.DAL\obj\Debug\net8.0\LMS.DAL.csproj.CoreCompileInputs.cache
+D:\programming\C#\LMS.API\LMS.DAL\obj\Debug\net8.0\LMS.DAL.dll
+D:\programming\C#\LMS.API\LMS.DAL\obj\Debug\net8.0\refint\LMS.DAL.dll
+D:\programming\C#\LMS.API\LMS.DAL\obj\Debug\net8.0\LMS.DAL.pdb
+D:\programming\C#\LMS.API\LMS.DAL\obj\Debug\net8.0\LMS.DAL.genruntimeconfig.cache
+D:\programming\C#\LMS.API\LMS.DAL\obj\Debug\net8.0\ref\LMS.DAL.dll
