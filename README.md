@@ -1,6 +1,5 @@
 # 📚 EDU-HUB - Online Learning Platform
 
-![EDU-HUB Banner](https://via.placeholder.com/1200x400?text=EDU-HUB+eLearning+Platform)  
 **EDU-HUB** is a full-stack eLearning platform built with **.NET Core, C#, JavaScript, HTML, and CSS**. It allows students to enroll in courses and professors to create and manage courses & quizzes.
 
 ## 🚀 Features
