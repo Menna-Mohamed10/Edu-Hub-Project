@@ -1,0 +1,280 @@
+﻿@model LMS_MVC_.ViewModels.Quiz.QuizVM
+@{
+    ViewData["Title"] = "Take Quiz";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+
+<h2>Quiz ID: @Model.Id</h2>
+<h3>@Model.Title</h3>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<style>
+    body {
+        background-color: #f0f2f5;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .content-wrapper {
+        flex: 1 0 auto;
+        padding-top: 80px; /* Adjust based on navbar height */
+        padding-bottom: 60px; /* Space for footer */
+    }
+
+    .quiz-container {
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        max-width: 600px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .quiz-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .question {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+
+    .options {
+        display: grid;
+        gap: 10px;
+    }
+
+    .option {
+        background-color: #f8f9fa;
+        border: 2px solid #dee2e6;
+        border-radius: 10px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .option:hover {
+            background-color: #e9ecef;
+        }
+
+        .option.selected {
+            background-color: #cfe2ff;
+            border-color: #0d6efd;
+        }
+
+        .option.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+
+        .option.incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+        }
+
+    .quiz-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+    }
+
+    .timer {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .progress {
+        height: 10px;
+        margin-bottom: 20px;
+    }
+
+    .results {
+        text-align: center;
+    }
+
+    .result-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
+
+    .score {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="container">
+        <div class="quiz-container" id="quiz">
+            <div class="quiz-header">
+                <h2>@Model.Title</h2>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+            <div id="question-container">
+                <p class="question" id="question"></p>
+                <div class="options" id="options"></div>
+            </div>
+            <div class="quiz-footer">
+                <div class="timer" id="timer">Time: 30s</div>
+                <button class="btn btn-primary" id="next-btn">Next</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Ensure quizData is properly structured from the model
+        const quizData = @Html.Raw(Json.Serialize(Model.Questions.Select(q => new
+            {
+                id = q.Id,
+                question = q.QuestionText,
+                options = q.Answers.Select(a => a.AnswerText).ToList(), // Map to answer texts
+                correctAnswerIndex = q.CorrectAnswerIndex
+            })));
+        let currentQuestion = 0;
+        let answers = {};
+        let timer;
+        let timeLeft = 30;
+
+        const questionEl = document.getElementById('question');
+        const optionsEl = document.getElementById('options');
+        const nextBtn = document.getElementById('next-btn');
+        const timerEl = document.getElementById('timer');
+        const progressBar = document.querySelector('.progress-bar');
+        const quizContainer = document.getElementById('quiz');
+        const quizId = @Model.Id; // Explicitly set quizId from model
+
+        console.log("Quiz ID from model:", quizId);
+        console.log("Quiz data:", JSON.stringify(quizData, null, 2));
+
+        function loadQuestion() {
+            if (currentQuestion >= quizData.length) {
+                submitQuiz();
+                return;
+            }
+
+            const question = quizData[currentQuestion];
+            questionEl.textContent = question.question || 'No question available';
+            optionsEl.innerHTML = '';
+
+            if (!question.options || question.options.length === 0) {
+                console.error("No options available for question:", question);
+                return;
+            }
+
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option');
+                button.addEventListener('click', () => selectOption(button, index));
+                optionsEl.appendChild(button);
+            });
+
+            nextBtn.style.display = 'none';
+            timeLeft = 30;
+            if (timer) clearInterval(timer);
+            startTimer();
+            updateProgress();
+        }
+
+        function selectOption(selectedButton, optionIndex) {
+            const buttons = optionsEl.getElementsByClassName('option');
+            Array.from(buttons).forEach(button => button.classList.remove('selected'));
+            selectedButton.classList.add('selected');
+            nextBtn.style.display = 'block';
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = `Time: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    moveToNextQuestion();
+                }
+            }, 1000);
+        }
+
+        function moveToNextQuestion() {
+            const selectedOption = document.querySelector('.option.selected');
+            if (selectedOption) {
+                const selectedAnswer = selectedOption.textContent;
+                answers[quizData[currentQuestion].id] = selectedAnswer;
+                console.log(`Selected answer for question ${quizData[currentQuestion].id}: ${selectedAnswer}`);
+            } else {
+                answers[quizData[currentQuestion].id] = "No answer";
+                console.log(`No selection for question ${quizData[currentQuestion].id}, defaulting to 'No answer'`);
+            }
+
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                submitQuiz();
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentQuestion / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressBar.setAttribute('aria-valuenow', progress);
+        }
+
+        function submitQuiz() {
+            const submission = {
+                quizId: quizId,
+                answers: answers
+            };
+            console.log("Submitting quiz:", JSON.stringify(submission, null, 2));
+            $.ajax({
+                url: '@Url.Action("SubmitQuiz", "Quiz")',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(submission),
+                success: function (response) {
+                    if (response.success) {
+                        showResults(response.score);
+                    } else {
+                        alert(response.message);
+                        location.reload();
+                    }
+                },
+                error: function (xhr) {
+                    alert('Error submitting quiz: ' + (xhr.responseJSON?.message || xhr.responseText));
+                    location.reload();
+                }
+            });
+        }
+
+        function showResults(score) {
+            quizContainer.innerHTML = `
+                <div class="results">
+                    <div class="result-icon">
+                        <i class="fas ${score >= 50 ? 'fa-trophy text-success' : 'fa-times-circle text-danger'}"></i>
+                    </div>
+                    <div class="score">Your score: ${score}%</div>
+                    <p>${score >= 50 ? 'Great job!' : 'Better luck next time!'}</p>
+                    <button class="btn btn-primary" onclick="location.href='@Url.Action("StudentDashboard", "Student")'">Back to Dashboard</button>
+                </div>
+            `;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            clearInterval(timer);
+            moveToNextQuestion();
+        });
+
+        // Load the first question
+        loadQuestion();
+    </script>
+}

@@ -1,0 +1,75 @@
+﻿@model LMS_MVC_.ViewModels.LoginVM
+@{
+    ViewData["Title"] = "Log In";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+    <link rel="stylesheet" href="~/css2/auth-styles.css" asp-append-version="true">
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="image-container">
+                <img src="~/images/password.png" alt="Secure Login" class="secure-image">
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <h2><a href="@Url.Action("Login", "Account")" class="active">Log In</a></h2>
+                    <h2><a href="@Url.Action("Register", "Account")">Sign Up</a></h2>
+                </div>
+
+                <form asp-controller="Account" asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="validation-error"></div>
+
+                    @if (ViewData.ModelState.Any(m => m.Value.Errors.Any()))
+                    {
+                        <div class="alert alert-danger">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <p>@error.ErrorMessage</p>
+                            }
+                        </div>
+                    }
+
+                    <div class="form-group">
+                        <input asp-for="Username" class="form-control" placeholder="Username" />
+                        <span asp-validation-for="Username" class="validation-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input asp-for="Password" class="form-control" placeholder="Password" type="password" />
+                        <span asp-validation-for="Password" class="validation-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn-primary">Log In</button>
+                    </div>
+
+                    <div class="forgot-password">
+                        <a href="@Url.Action("ForgotPassword", "Account")">Forgot your password?</a>
+                    </div>
+
+                    <hr>
+
+                    <div class="signup-prompt">
+                        <p>Don't have an account? <a href="@Url.Action("Register", "Account")">Sign Up</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+</body>
+</html>

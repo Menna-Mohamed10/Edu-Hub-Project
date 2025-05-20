@@ -1,0 +1,143 @@
+﻿@model dynamic
+@{
+    ViewData["Title"] = "Student Dashboard";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+}
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Session
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <h2 class="text-center">Welcome to Your Student Dashboard</h2>
+        <p class="text-center">Here you can view your enrolled courses, wallet balance, certificates, and quiz results.</p>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success text-center">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger text-center">@TempData["Error"]</div>
+        }
+
+        <div class="text-center">
+            <h6 class="section-title bg-white text-center text-primary px-3">Courses</h6>
+            <h1 class="mb-5">Your Enrolled Courses</h1>
+            <div class="mb-4">
+                <a href="@Url.Action("Index", "Course")" class="btn btn-primary">View All Courses</a>
+            </div>
+        </div>
+        <div class="row g-4 justify-content-center" id="enrolled-courses">
+            <div class="col-12 text-center">
+                <p>Loading enrolled courses...</p>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <h6 class="section-title bg-white text-center text-primary px-3">Quizzes</h6>
+            <h1 class="mb-5">Take a Quiz</h1>
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-4 col-md-6">
+                    <div class="course-item bg-light p-3" style="border-radius: 10px;">
+                        <h5 class="text-center mb-2">Sample Quiz</h5>
+                        <div class="text-center">
+                            <a href="@Url.Action("TakeQuiz", "Quiz", new { id = 1 })" class="btn btn-primary">Take Quiz</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const token = '@Context.Session.GetString("JwtToken")';
+            if (token) {
+                $.ajax({
+                    url: 'http://localhost:5179/api/Student/EnrolledCourses',
+                    method: 'GET',
+                    headers: { 'Authorization': 'Bearer ' + token },
+                    success: function (courses) {
+                        const courseList = $('#enrolled-courses');
+                        courseList.empty();
+                        if (courses.length === 0) {
+                            courseList.append('<div class="col-12 text-center"><p>No enrolled courses.</p></div>');
+                        } else {
+                            courses.forEach(course => {
+                                courseList.append(`
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="course-item bg-light p-3" style="border-radius: 10px; position: relative; cursor: pointer;" data-course-id="${course.id}">
+                                            <img class="img-fluid w-100" src="/img/${course.imagePath || 'course-1.jpg'}" alt="${course.title}" style="height: 200px; object-fit: cover;">
+                                            <h3 class="mt-3 text-center">$${course.price.toFixed(2)}</h3>
+                                            <div class="text-center mb-2">
+                                                <small class="text-primary"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i> (123)</small>
+                                            </div>
+                                            <h5 class="text-center mb-2">${course.title}</h5>
+                                            <p class="text-center mb-3">${course.description && course.description.length > 100 ? course.description.substring(0, 100) + '...' : course.description || ''}</p>
+                                            <div class="d-flex justify-content-around text-center mb-3">
+                                                <small><i class="fa fa-user-tie text-primary me-1"></i>Instructor</small>
+                                                <small><i class="fa fa-clock text-primary me-1"></i>${course.durationHours} hrs</small>
+                                                <small><i class="fa fa-user text-primary me-1"></i>${course.numberOfStudents}</small>
+                                            </div>
+                                            <div class="quiz-section" style="display: none;">
+                                                <h6 class="text-center mt-2">Available Quizzes</h6>
+                                                <div class="text-center" id="quizzes-${course.id}"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `);
+                            });
+
+                            // Add click event to toggle quizzes
+                            $('.course-item').on('click', function () {
+                                const courseId = $(this).data('course-id');
+                                const quizSection = $(this).find('.quiz-section');
+                                if (quizSection.is(':visible')) {
+                                    quizSection.hide();
+                                } else {
+                                    loadQuizzes(courseId, quizSection.find('#quizzes-' + courseId));
+                                }
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        $('#enrolled-courses').html('<div class="col-12 text-center"><p>Failed to load enrolled courses. Please try again or log in.</p></div>');
+                        console.error('Error fetching enrolled courses:', xhr.responseText);
+                    }
+                });
+            } else {
+                $('#enrolled-courses').html('<div class="col-12 text-center"><p>Please log in to view your enrolled courses.</p></div>');
+            }
+
+            function loadQuizzes(courseId, quizContainer) {
+                $.ajax({
+                    url: '@Url.Action("GetQuizzesByCourseId", "Quiz", new { courseId = "__courseId__" })'.replace('__courseId__', courseId),
+                    method: 'GET',
+                    success: function (data) {
+                        console.log('Raw quiz data:', data); // Debug log
+                        quizContainer.empty();
+                        if (data.length === 0 || (data.success === false && data.message)) {
+                            quizContainer.append('<p class="text-center">' + (data.message || 'No quizzes available for this course.') + '</p>');
+                        } else {
+                            data.forEach(quiz => {
+                                console.log('Processing quiz:', quiz); // Debug log
+                                quizContainer.append(`
+                                    <a href="/Quiz/TakeQuiz?id=${quiz.id}" class="btn btn-sm btn-primary m-1">${quiz.title || 'Untitled Quiz'}</a>
+                                `);
+                            });
+                        }
+                        quizContainer.parent().show();
+                    },
+                    error: function (xhr) {
+                        quizContainer.html('<p class="text-center">Failed to load quizzes.</p>');
+                        console.error('Error fetching quizzes:', xhr.responseText);
+                        quizContainer.parent().show();
+                    }
+                });
+            }
+        });
+    </script>
+}

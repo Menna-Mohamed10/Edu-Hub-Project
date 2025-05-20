@@ -1,0 +1,92 @@
+﻿@model LMS_MVC_.ViewModels.RegisterVM
+@{
+    ViewData["Title"] = "Sign Up";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="~/css2/auth-styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="image-container">
+                <img src="~/images/secure-login.png" alt="Secure Login" class="secure-image">
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <h2><a href="@Url.Action("Login", "Account")">Log In</a></h2>
+                    <h2><a href="@Url.Action("Register", "Account")" class="active">Sign Up</a></h2>
+                </div>
+
+                <form asp-controller="Account" asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="validation-error"></div>
+
+                    <div class="name-row">
+                        <div class="form-group half">
+                            <input asp-for="FirstName" class="form-control" placeholder="First Name" />
+                            <span asp-validation-for="FirstName" class="validation-error"></span>
+                        </div>
+                        <div class="form-group half">
+                            <input asp-for="LastName" class="form-control" placeholder="Last Name" />
+                            <span asp-validation-for="LastName" class="validation-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <input asp-for="Username" class="form-control" placeholder="Username" />
+                        <span asp-validation-for="Username" class="validation-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input asp-for="Email" class="form-control" placeholder="Email" type="email" />
+                        <span asp-validation-for="Email" class="validation-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input asp-for="Password" class="form-control" placeholder="Password" type="password" />
+                        <span asp-validation-for="Password" class="validation-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm Password" type="password" />
+                        <span asp-validation-for="ConfirmPassword" class="validation-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <select asp-for="Role" class="form-control">
+                            <option value="">-- Select Role --</option>
+                            <option value="Student">Student</option>
+                            <option value="Instructor">Instructor</option>
+                            
+                        </select>
+                        <span asp-validation-for="Role" class="validation-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn-primary">Sign Up</button>
+                    </div>
+
+                    <hr>
+
+                    <div class="login-prompt">
+                        <p>Already have an account? <a href="@Url.Action("Login", "Account")">Log In</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

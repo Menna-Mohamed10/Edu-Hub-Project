@@ -1,0 +1,223 @@
+﻿
+
+@model dynamic
+@{
+    ViewData["Title"] = "Professor Dashboard";
+    Layout = "~/Views/Shared/_Layout3.cshtml";
+}
+
+<style>
+    .content-wrapper {
+        flex: 1 0 auto;
+        padding-top: 80px;
+        padding-bottom: 60px;
+    }
+
+    .form-container {
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .question-form {
+        margin-top: 20px;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+    }
+
+    .answer-input {
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="container">
+        <h2 class="text-center">Professor Dashboard</h2>
+        <p class="text-center">Add courses and quizzes for your students.</p>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success text-center">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger text-center">@TempData["Error"]</div>
+        }
+
+        <!-- Add Course Form -->
+        <div class="form-container mt-5">
+            <h4>Add New Course</h4>
+            <form id="addCourseForm">
+                <div class="mb-3">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-control" id="courseTitle" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="courseDescription" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Price ($)</label>
+                    <input type="number" class="form-control" id="coursePrice" step="0.01" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Category</label>
+                    <input type="text" class="form-control" id="CategoryName" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Duration (hours)</label>
+                    <input type="number" class="form-control" id="courseDuration" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Image Path</label>
+                    <input type="text" class="form-control" id="courseImagePath">
+                </div>
+                <button type="submit" class="btn btn-primary">Add Course</button>
+            </form>
+        </div>
+
+        <!-- Add Quiz Form -->
+        <div class="form-container mt-5">
+            <h4>Add New Quiz</h4>
+            <form id="addQuizForm">
+                <div class="mb-3">
+                    <label class="form-label">Course ID</label>
+                    <input type="number" class="form-control" id="quizCourseId" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-control" id="quizTitle" required>
+                </div>
+                <div id="questionsContainer">
+                    <div class="question-form">
+                        <div class="mb-3">
+                            <label class="form-label">Question Text</label>
+                            <input type="text" class="form-control" data-question="text" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Correct Answer</label>
+                            <input type="text" class="form-control" data-question="correct" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Answers</label>
+                            <div class="answer-input">
+                                <input type="text" class="form-control mb-2" data-answer="0" placeholder="Answer 1" required>
+                                <input type="text" class="form-control mb-2" data-answer="1" placeholder="Answer 2" required>
+                                <input type="text" class="form-control mb-2" data-answer="2" placeholder="Answer 3" required>
+                                <input type="text" class="form-control mb-2" data-answer="3" placeholder="Answer 4" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="addQuestionBtn" class="btn btn-secondary mt-2">Add Another Question</button>
+                <button type="submit" class="btn btn-primary mt-3">Add Quiz</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const token = '@Context.Session.GetString("JwtToken")';
+            if (!token) {
+                alert("Session expired. Please log in again.");
+                location.href = '@Url.Action("Login", "Account")';
+                return;
+            }
+
+            let questionCount = 1;
+
+            $('#addQuestionBtn').click(function () {
+                const newQuestion = $($('#questionsContainer .question-form')[0]).clone();
+                newQuestion.find('[data-question="text"]').val('');
+                newQuestion.find('[data-question="correct"]').val('');
+                newQuestion.find('[data-answer]').val('');
+                newQuestion.find('.answer-input').empty().append(`
+                    <input type="text" class="form-control mb-2" data-answer="0" placeholder="Answer 1" required>
+                    <input type="text" class="form-control mb-2" data-answer="1" placeholder="Answer 2" required>
+                    <input type="text" class="form-control mb-2" data-answer="2" placeholder="Answer 3" required>
+                    <input type="text" class="form-control mb-2" data-answer="3" placeholder="Answer 4" required>
+                `);
+                $('#questionsContainer').append(newQuestion);
+                questionCount++;
+            });
+
+            $('#addCourseForm').submit(function (e) {
+                e.preventDefault();
+                const course = {
+                    title: $('#courseTitle').val(),
+                    description: $('#courseDescription').val(),
+                    price: parseFloat($('#coursePrice').val()),
+                    durationHours: parseInt($('#courseDuration').val()),
+                    imagePath: $('#courseImagePath').val(),
+                    CategoryName : $('#CategoryName').val()
+                };
+                $.ajax({
+                    url: '@Url.Action("AddCourse", "Professor")',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(course),
+                    success: function (response) {
+                        if (response.success) {
+                            alert('Course added successfully!');
+                            $('#addCourseForm')[0].reset();
+                        } else {
+                            alert(response.message || 'Failed to add course.');
+                        }
+                        location.reload();
+                    },
+                    error: function (xhr) {
+                        alert('Error: ' + (xhr.responseJSON?.message || xhr.responseText));
+                    }
+                });
+            });
+
+            $('#addQuizForm').submit(function (e) {
+                e.preventDefault();
+                const questions = [];
+                $('#questionsContainer .question-form').each(function () {
+                    const questionText = $(this).find('[data-question="text"]').val();
+                    const correctAnswer = $(this).find('[data-question="correct"]').val();
+                    const answers = [];
+                    $(this).find('[data-answer]').each(function () {
+                        const answerText = $(this).val();
+                        if (answerText) answers.push({ answerText });
+                    });
+                    questions.push({ questionText, answers, correctAnswer });
+                });
+                const quiz = {
+                    courseId: parseInt($('#quizCourseId').val()),
+                    title: $('#quizTitle').val(),
+                    questions: questions
+                };
+                $.ajax({
+                    url: '@Url.Action("AddQuiz", "Professor")',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(quiz),
+                    success: function (response) {
+                        if (response.success) {
+                            alert('Quiz added successfully!');
+                            $('#addQuizForm')[0].reset();
+                            questionCount = 1;
+                            $('#questionsContainer').html($('.question-form').first().clone());
+                        } else {
+                            alert(response.message || 'Failed to add quiz.');
+                        }
+                        location.reload();
+                    },
+                    error: function (xhr) {
+                        alert('Error: ' + (xhr.responseJSON?.message || xhr.responseText));
+                    }
+                });
+            });
+        });
+    </script>
+}
+<!-- Add more UI elements as needed -->
