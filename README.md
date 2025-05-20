@@ -66,9 +66,22 @@
 - [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
 - [Git](https://git-scm.com/downloads)
 
-
-1. **Clone the repository**
-   ```bash
+**Clone the repository**
+```bash
    git clone https://github.com/your-username/EDU-HUB.git
    cd EDU-HUB
+```
+   
+
+### 🤝 Contributors
+
+
+- 👩‍💻 **Menna Allah Mohamd Farag Mahmoud** 
+- 👩‍💻 **Malak Mohamed Faid** 
+- 👩‍💻 **Rawda Mostafa Abdelrahman** 
+- 👩‍💻 **Salma Amr Adel** 
+- 👩‍💻 **Joumana Mohamed Elsayed** 
+
+
+
 
